@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pulse — lecteur musical</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .sleep-mode-notice{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;z-index:99999;}
+    .sleep-mode-notice.hidden{display:none;}
+    .sleep-mode-card{position:relative;width:min(420px,100%);background:#181818;color:#fff;border:1px solid #303030;border-radius:22px;padding:28px 24px 24px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.55);}
+    .sleep-mode-icon{font-size:38px;margin-bottom:10px;}
+    .sleep-mode-card h2{margin:0 28px 10px;font-size:22px;line-height:1.2;}
+    .sleep-mode-card p{margin:0 0 20px;color:#aaa;line-height:1.45;}
+    .sleep-mode-card .primary-btn{width:100%;min-height:44px;}
+    .sleep-mode-close{position:absolute;right:10px;top:8px;border:0;background:transparent;color:#aaa;font-size:30px;cursor:pointer;}
+  </style>
+</head>
+<body>
+  <div id="sleepModeNotice" class="sleep-mode-notice" role="dialog" aria-modal="true" aria-labelledby="sleepModeNoticeTitle">
+    <div class="sleep-mode-card">
+      <button id="sleepModeNoticeClose" class="sleep-mode-close" aria-label="Fermer">×</button>
+      <div class="sleep-mode-icon">💻</div>
+      <h2 id="sleepModeNoticeTitle">Passer en mode PC pour écouter en mode veille</h2>
+      <p>Pour profiter de la lecture en mode veille, ouvre le site sur un ordinateur.</p>
+      <button id="sleepModeNoticeOk" class="primary-btn">Compris</button>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <button class="icon-btn logo-mark spotify-brand" aria-label="Accueil" data-view="home" title="Accueil">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M7.2 9.1c3.2-1 6.7-.7 9.6.7" fill="none" stroke="#111" stroke-width="1.7" stroke-linecap="round"/><path d="M7.8 12c2.7-.8 5.7-.5 8 .7" fill="none" stroke="#111" stroke-width="1.6" stroke-linecap="round"/><path d="M8.6 14.7c2.1-.6 4.4-.3 6.2.5" fill="none" stroke="#111" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <nav class="main-nav">
+      <button class="nav-btn active" data-view="home" title="Accueil">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V9.8L12 4l7 5.8V20h-5.2v-6.1H10.2V20z"/></svg><span>Accueil</span>
+      </button>
+      <button class="nav-btn" data-view="search" title="Rechercher des vidéos">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.7 4a6.7 6.7 0 1 0 4.2 11.9l4.6 4.6 1.4-1.4-4.6-4.6A6.7 6.7 0 0 0 10.7 4zm0 2a4.7 4.7 0 1 1 0 9.4 4.7 4.7 0 0 1 0-9.4z"/></svg><span>Recherche</span>
+      </button>
+      <button class="nav-btn" data-view="playlists" title="Playlists">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h10v2H5zm0 5h10v2H5zm0 5h6v2H5zm12-7v9.2a3 3 0 1 1-1.5-2.6V9z"/></svg><span>Playlists</span>
+      </button>
+      <button class="nav-btn spotify-import-nav" id="openSpotifyImportBtn" title="Importer une playlist Spotify" type="button">
+        <img class="spotify-import-image-icon" src="playlist-import-icon.png" alt="" aria-hidden="true"><span>Importer Spotify</span>
+      </button>
+    </nav>
+    <div class="sidebar-spacer"></div>
+    <label class="icon-btn upload-icon" title="Ajouter des MP3">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>
+      <input id="fileInput" type="file" accept="audio/mpeg,audio/mp3,audio/*" multiple hidden>
+    </label>
+    <button class="icon-btn bookmark-icon" title="Titres likés">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5A2.5 2.5 0 0 1 9.5 2h5A2.5 2.5 0 0 1 17 4.5V21l-5-3.2L7 21z"/></svg>
+    </button>
+  </aside>
+
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button id="historyBackBtn" class="round-nav" aria-label="Retour" title="Retour">‹</button>
+        <button id="historyForwardBtn" class="round-nav" aria-label="Suivant" title="Suivant">›</button>
+        <div class="search">
+          <span class="search-icon">⌕</span>
+          <input id="searchInput" type="text" autocomplete="off" spellcheck="false" placeholder="Que souhaites-tu écouter ou regarder ?">
+          <button id="searchBtn" aria-label="Rechercher">↵</button>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button id="clearBtn" class="clear-top">Effacer</button>
+      </div>
+    </header>
+
+    <div class="content-layout">
+      <section class="content">
+        <section id="homeView" class="view">
+          <div class="filter-pills"><button id="homeFilterBtn" class="filter-pill active" title="Afficher les playlists">Tout</button></div>
+
+          <div id="playlistQuickGrid" class="quick-grid playlist-quick-grid"></div>
+
+          <section class="home-section recent-section">
+            <div class="section-title">
+              <div>
+                <span class="section-kicker">TON HISTORIQUE</span>
+                <h2>Écoutés récemment</h2>
+              </div>
+              <button id="clearRecentBtn" class="show-all">Effacer</button>
+            </div>
+            <div id="recentlyPlayed" class="recommendation-row recent-row"></div>
+          </section>
+
+          <section class="home-section">
+            <div class="section-title">
+              <div>
+                <span class="section-kicker">Conçu pour toi</span>
+                <h2>Écoute sans t'arrêter</h2>
+              </div>
+              <button id="showRecommendationsBtn" class="show-all">Tout afficher</button>
+            </div>
+            <div id="recommendations" class="recommendation-row"></div>
+          </section>
+
+          <section class="home-section home-only">
+            <div class="section-title">
+              <div>
+                <span class="section-kicker">Accueil</span>
+                <h2>Ta musique, simplement</h2>
+              </div>
+            </div>
+            <p class="home-tip">Utilise <strong>Rechercher</strong> en bas pour trouver des vidéos musicales, puis appuie sur une carte pour lancer directement la lecture.</p>
+          </section>
+        </section>
+
+        <section id="searchView" class="view hidden">
+          <div class="section-title search-page-title">
+            <div>
+              <span class="section-kicker">YOUTUBE</span>
+              <h2>Rechercher des vidéos</h2>
+            </div>
+            <span id="resultCount"></span>
+          </div>
+          <div id="message" class="message"></div>
+          <div id="results" class="results">
+            <div class="empty">Lance une recherche pour trouver des vidéos musicales.</div>
+          </div>
+        </section>
+
+        <section id="libraryView" class="view hidden">
+          <div class="section-title">
+            <div>
+              <span class="section-kicker">TA MUSIQUE</span>
+              <h2>Ma bibliothèque</h2>
+            </div>
+            <span id="libraryCount">0 titre</span>
+          </div>
+          <div class="library-toolbar">
+            <label class="upload-large">
+              + Ajouter des MP3
+              <input id="libraryFileInput" type="file" accept="audio/mpeg,audio/mp3,audio/*" multiple hidden>
+            </label>
+            <span>Les fichiers restent sur ton PC.</span>
+          </div>
+          <div id="library" class="library"></div>
+        </section>
+<section id="playlistsView" class="view hidden">
+          <div class="playlist-header">
+            <div>
+              <span class="section-kicker">COLLECTION</span>
+              <h2>Mes playlists</h2>
+            </div>
+            <button id="newPlaylistBtn" class="primary-btn">+ Nouvelle playlist</button>
+          </div>
+          <div id="playlists" class="playlists-grid"></div>
+        </section>
+      </section>
+
+      <aside class="details-panel">
+        <div class="details-heading">
+          <strong>Musique</strong>
+          <button id="detailsMenuBtn" class="details-menu" title="Ajouter le morceau à la file">•••</button>
+        </div>
+        <div id="detailCover" class="detail-cover"><span>♫</span></div>
+        <div class="detail-main">
+          <div>
+            <h2 id="detailTitle">Aucun titre</h2>
+            <p id="detailArtist">Choisis une musique pour afficher les détails</p>
+          </div>
+          <button id="detailLike" class="like-detail" title="Ajouter aux titres likés" aria-label="Ajouter aux titres likés">♡</button>
+        </div>
+        <button id="detailPlay" class="detail-play">▶ <span>Passer à la vidéo</span></button>
+
+        <div class="similar-head">
+          <h3>Vidéos similaires</h3>
+          <button id="refreshSimilar">↻</button>
+        </div>
+        <div id="similarVideos" class="similar-list">
+          <div class="similar-empty">Les vidéos similaires apparaîtront ici après une recherche.</div>
+        </div>
+
+        <div class="artist-box">
+          <span>À propos de l'artiste</span>
+          <strong id="artistAbout">YouTube</strong>
+          <p>Les informations du morceau sélectionné s'affichent ici.</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="player">
+    <div class="now-playing">
+      <div class="cover" id="cover">♫</div>
+      <div class="track-text">
+        <strong id="trackTitle">Aucun titre</strong>
+        <span id="trackArtist">Ajoute un fichier audio</span>
+      </div>
+      <button id="playerLike" class="player-like" title="Ajouter aux titres likés" aria-label="Ajouter aux titres likés">♡</button>
+    </div>
+
+    <div class="player-center">
+      <div class="control-row">
+        <button id="shuffleBtn" class="player-btn player-mode-btn" title="Lecture aléatoire" aria-label="Lecture aléatoire" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3h4v4M21 3l-5 5-2-2M3 7h3c2 0 3 1 4 3l4 7c1 2 2 3 4 3h3M17 17h4v4M21 21l-5-5"/></svg>
+        </button>
+        <button id="prevBtn" class="player-btn">⏮</button>
+        <button id="playBtn" class="play">▶</button>
+        <button id="nextBtn" class="player-btn">⏭</button>
+        <button id="repeatBtn" class="player-btn player-mode-btn" title="Répéter" aria-label="Répéter" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/><path d="M12 6v2M12 16v2"/></svg>
+        </button>
+      </div>
+      <div class="progress-row">
+        <span id="currentTime">0:00</span>
+        <input id="progress" type="range" min="0" max="100" value="0" step="0.1">
+        <span id="duration">0:00</span>
+      </div>
+    </div>
+
+    <div class="volume">
+      <button id="muteBtn" class="volume-btn" title="Couper le son" aria-label="Couper le son" aria-pressed="false">
+        <svg id="volumeIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9.5a4.5 4.5 0 0 1 0 5M18.5 7a8 8 0 0 1 0 10"/></svg>
+      </button>
+      <input id="volume" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume">
+      <button id="downloadBtn" class="player-extra download-player-btn" title="Télécharger le titre en MP3" aria-label="Télécharger le titre en MP3">⇩</button>
+      <button id="queueBtn" class="player-extra" title="File d'attente" aria-label="Ouvrir la file d'attente">▤</button>
+      <button id="expandedOpen" class="player-extra" title="Ouvrir le lecteur" aria-label="Ouvrir le lecteur">⛶</button>
+    </div>
+  </footer>
+
+  <!-- Importation d'une playlist Spotify -->
+  <section id="spotifyImportModal" class="spotify-import-modal hidden" role="dialog" aria-modal="true" aria-labelledby="spotifyImportTitle" aria-hidden="true">
+    <div class="spotify-import-backdrop" id="spotifyImportBackdrop"></div>
+    <div class="spotify-import-card">
+      <button id="closeSpotifyImportBtn" class="spotify-import-close" type="button" aria-label="Fermer">×</button>
+      <div class="spotify-import-icon" aria-hidden="true">
+         <svg viewBox="0 0 24 24"><rect x="4" y="5" width="13" height="2.2" rx="1.1"/><rect x="4" y="10.2" width="10" height="2.2" rx="1.1"/><rect x="4" y="15.4" width="7" height="2.2" rx="1.1"/><path d="M18 9v8.2a2.9 2.9 0 1 1-1.4-2.5V7.7L21 6.5v2z" fill="currentColor"/></svg>
+       </div>
+      <p class="eyebrow">IMPORTATION</p>
+      <h2 id="spotifyImportTitle">Importer une playlist Spotify</h2>
+      <p class="spotify-import-description">Colle le lien d'une playlist Spotify publique. Les morceaux seront recherchés sur YouTube puis ajoutés automatiquement à tes playlists.</p>
+      <label class="spotify-import-label" for="spotifyPlaylistUrl">Lien de la playlist Spotify</label>
+      <div class="spotify-import-input-row">
+        <input id="spotifyPlaylistUrl" type="url" inputmode="url" autocomplete="off" placeholder="https://open.spotify.com/playlist/..." />
+        <button id="importSpotifyBtn" class="primary-btn" type="button">Importer</button>
+      </div>
+      <div id="spotifyImportStatus" class="spotify-import-status" role="status" aria-live="polite"></div>
+      <div id="spotifyImportProgress" class="spotify-import-progress hidden"><span></span></div>
+      <div class="spotify-import-note">Aucune clé API Spotify n'est nécessaire. La playlist doit être publique. La recherche des vidéos utilise le système YouTube déjà présent dans l'application.</div>
+    </div>
+  </section>
+
+  <div id="expandedPlayer" class="expanded-player hidden" aria-hidden="true">
+    <div class="expanded-player-backdrop" id="expandedPlayerBackdrop"></div>
+    <section class="expanded-player-sheet" role="dialog" aria-modal="true" aria-label="Lecteur en plein écran">
+      <header class="expanded-player-topbar">
+        <button id="expandedClose" class="expanded-icon-btn" aria-label="Fermer">⌄</button>
+        <div class="expanded-source">EN LECTURE</div>
+        <button id="expandedMore" class="expanded-icon-btn" aria-label="Plus">•••</button>
+      </header>
+      <div class="expanded-player-content">
+        <div id="expandedMediaViewport" class="expanded-media-viewport" aria-label="Pochette et clip">
+          <div id="expandedMediaTrack" class="expanded-media-track">
+            <div class="expanded-media-slide expanded-cover-slide">
+              <div id="expandedCover" class="expanded-cover">♫</div>
+              <button id="expandedShowClip" class="expanded-show-clip" type="button">▶ Afficher le clip</button>
+            </div>
+            <div class="expanded-media-slide expanded-video-slide">
+              <div id="expandedVideo" class="expanded-video"><div id="youtubePlayer"></div><div id="expandedNoVideo">Le clip n’est pas disponible pour ce morceau.</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="expanded-track-row">
+          <div class="expanded-track-copy"><h2 id="expandedTitle">Aucun titre</h2><p id="expandedArtist">Ajoute un fichier audio</p></div>
+          <button id="expandedLike" class="expanded-like" aria-label="Ajouter aux titres likés">♡</button>
+        </div>
+        <div class="expanded-progress"><input id="expandedProgress" type="range" min="0" max="100" value="0" step="0.1"><div><span id="expandedCurrent">0:00</span><span id="expandedDuration">0:00</span></div></div>
+        <div class="expanded-controls">
+          <button id="expandedShuffle" aria-label="Lecture aléatoire">↝</button>
+          <button id="expandedPrev" aria-label="Précédent">⏮</button>
+          <button id="expandedPlay" class="expanded-play" aria-label="Lecture">▶</button>
+          <button id="expandedNext" aria-label="Suivant">⏭</button>
+          <button id="expandedRepeat" aria-label="Répéter">↻</button>
+        </div>
+        <div class="expanded-actions">
+          <button id="expandedDevice" class="expanded-download" aria-label="Télécharger la musique" title="Télécharger la musique">⇩</button>
+          <button id="expandedShare" aria-label="Partager">⇧</button>
+          <button id="expandedQueue" aria-label="File d'attente">☷</button>
+        </div>
+        <section class="lyrics-card"><span>APERÇU DES PAROLES</span><strong id="expandedLyrics">Les paroles de ce morceau apparaîtront ici.</strong></section>
+      </div>
+    </section>
+  </div>
+
+  <div id="queueModal" class="modal hidden">
+    <div class="modal-card queue-card">
+      <button id="closeQueue" class="close">×</button>
+      <div class="queue-header"><div><span class="section-kicker">LECTURE</span><h2>File d’attente</h2></div><button id="clearQueue" class="ghost">Vider</button></div>
+      <p class="queue-hint">Ajoute des morceaux depuis les résultats, ta bibliothèque ou tes playlists, puis réorganise-les avec ↑ et ↓.</p>
+      <div id="queueList" class="queue-list"></div>
+    </div>
+  </div>
+
+  <audio id="audio" preload="auto" playsinline></audio></div>
+
+<div id="youtubeModal" class="modal hidden">
+    <div class="modal-card youtube-modal-card">
+      <button id="closeModal" class="close">×</button>
+      <div class="youtube-modal-info">
+        <div class="youtube-modal-heading">
+          <div>
+            <p class="eyebrow">EN LECTURE</p>
+            <h2 id="ytTitle">Lecture YouTube</h2>
+            <p id="ytArtist" class="youtube-modal-artist">YouTube</p>
+          </div>
+        </div>
+        <div class="youtube-modal-time">
+          <span id="ytCurrentTime">0:00</span>
+          <span id="ytDuration">0:00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="playlistModal" class="modal hidden">
+    <div class="modal-card small-modal">
+      <button id="closePlaylistModal" class="close">×</button>
+      <h2>Créer une playlist</h2>
+      <input id="playlistNameInput" class="modal-input" type="text" maxlength="60" placeholder="Nom de la playlist">
+      <div class="modal-actions">
+        <button id="cancelPlaylistBtn" class="ghost">Annuler</button>
+        <button id="createPlaylistBtn" class="primary-btn">Créer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="addPlaylistModal" class="modal hidden">
+    <div class="modal-card small-modal">
+      <button id="closeAddPlaylistModal" class="close">×</button>
+      <h2>Ajouter à une playlist</h2>
+      <div id="playlistChoices"></div>
+      <button id="newPlaylistFromAddBtn" class="primary-btn full">+ Nouvelle playlist</button>
+    </div>
+  </div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="script.js?v=20260824-v15-mobile"></script>
+</body>
+</html>
