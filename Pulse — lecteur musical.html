@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<!-- saved from url=(0039)https://spotify.fartum2000.workers.dev/ -->
+<html lang="fr" crxemulator-bridged="" crxemulator=""><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Pulse — lecteur musical</title>
+  <link rel="stylesheet" href="./Pulse — lecteur musical_files/style.css">
+
+
+<script type="text/javascript" id="www-widgetapi-script" src="./Pulse — lecteur musical_files/www-widgetapi.js.téléchargement" async=""></script><script type="text/javascript" src="./Pulse — lecteur musical_files/c8d3a069-77c7-41b6-927e-06a4c17fac35" data-awssuidacr="6b6f2803-0cb3-4055-ac63-60d4498fe1e5"></script><script type="text/javascript" src="./Pulse — lecteur musical_files/986df696-a484-42dc-a3ed-0466520e31dc"></script></head>
+<body>
+  <iframe id="youtubeAudioPlayer" aria-hidden="true" frameborder="0" allowfullscreen="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" title="YouTube video player" width="100%" height="100%" src="./Pulse — lecteur musical_files/saved_resource.html"></iframe>
+
+
+  <aside class="sidebar">
+    <button class="icon-btn logo-mark spotify-brand" aria-label="Accueil" data-view="home" title="Accueil">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"></circle><path d="M7.2 9.1c3.2-1 6.7-.7 9.6.7" fill="none" stroke="#111" stroke-width="1.7" stroke-linecap="round"></path><path d="M7.8 12c2.7-.8 5.7-.5 8 .7" fill="none" stroke="#111" stroke-width="1.6" stroke-linecap="round"></path><path d="M8.6 14.7c2.1-.6 4.4-.3 6.2.5" fill="none" stroke="#111" stroke-width="1.5" stroke-linecap="round"></path></svg>
+    </button>
+    <nav class="main-nav">
+      <button class="nav-btn active" data-view="home" title="Accueil">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V9.8L12 4l7 5.8V20h-5.2v-6.1H10.2V20z"></path></svg><span>Accueil</span>
+      </button>
+      <button class="nav-btn" data-view="search" title="Rechercher des vidéos">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.7 4a6.7 6.7 0 1 0 4.2 11.9l4.6 4.6 1.4-1.4-4.6-4.6A6.7 6.7 0 0 0 10.7 4zm0 2a4.7 4.7 0 1 1 0 9.4 4.7 4.7 0 0 1 0-9.4z"></path></svg><span>Recherche</span>
+      </button>
+      <button class="nav-btn" data-view="playlists" title="Playlists">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h10v2H5zm0 5h10v2H5zm0 5h6v2H5zm12-7v9.2a3 3 0 1 1-1.5-2.6V9z"></path></svg><span>Playlists</span>
+      </button>
+      <button id="openSpotifyImportBtn" class="nav-btn" data-view="spotify" title="Importer une playlist Spotify">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"></circle><path d="M7.5 9.5c3.1-1 6.2-.7 9 .7M8 12.2c2.6-.8 5.2-.5 7.6.6M8.8 14.8c2-.5 4-.3 5.8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg><span>Spotify</span>
+      </button>
+</nav>
+    <div class="sidebar-spacer"></div>
+    <label class="icon-btn upload-icon" title="Ajouter des MP3">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"></path></svg>
+      <input id="fileInput" type="file" accept="audio/mpeg,audio/mp3,audio/*" multiple="" hidden="">
+    </label>
+    <button class="icon-btn bookmark-icon" title="Titres likés">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5A2.5 2.5 0 0 1 9.5 2h5A2.5 2.5 0 0 1 17 4.5V21l-5-3.2L7 21z"></path></svg>
+    </button>
+  </aside>
+
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button id="historyBackBtn" class="round-nav" aria-label="Retour" title="Retour">‹</button>
+        <button id="historyForwardBtn" class="round-nav" aria-label="Suivant" title="Suivant">›</button>
+        <div class="search">
+          <span class="search-icon">⌕</span>
+          <input id="searchInput" type="text" autocomplete="off" spellcheck="false" placeholder="Que souhaites-tu écouter ou regarder ?">
+          <button id="searchBtn" aria-label="Rechercher">↵</button>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button id="clearBtn" class="clear-top">Effacer</button>
+      </div>
+    </header>
+
+    <div class="content-layout">
+      <section class="content">
+        <section id="homeView" class="view">
+          <div class="filter-pills"><button id="homeFilterBtn" class="filter-pill active" title="Afficher les playlists">Tout</button></div>
+
+          <div id="playlistQuickGrid" class="quick-grid playlist-quick-grid"><button class="quick-card playlist-quick-card" data-quick-playlist="0" type="button"><span class="quick-cover cover-purple"><img src="./Pulse — lecteur musical_files/hqdefault.jpg" alt="" loading="lazy"></span><span><strong>Hits du moment</strong><span class="playlist-count">10 titres</span></span></button><button class="quick-card playlist-quick-card" data-quick-playlist="1" type="button"><span class="quick-cover cover-purple"><img src="./Pulse — lecteur musical_files/hqdefault(1).jpg" alt="" loading="lazy"></span><span><strong>Rap français 2026</strong><span class="playlist-count">10 titres</span></span></button><button class="quick-card playlist-quick-card" data-quick-playlist="2" type="button"><span class="quick-cover cover-purple"><img src="./Pulse — lecteur musical_files/hqdefault(2).jpg" alt="" loading="lazy"></span><span><strong>Rap &amp; bangers</strong><span class="playlist-count">10 titres</span></span></button><button class="quick-card playlist-quick-card" data-quick-playlist="3" type="button"><span class="quick-cover cover-purple"><img src="./Pulse — lecteur musical_files/hqdefault(3).jpg" alt="" loading="lazy"></span><span><strong>Chill</strong><span class="playlist-count">10 titres</span></span></button><button class="quick-card playlist-quick-card" data-quick-playlist="4" type="button"><span class="quick-cover cover-purple">♫</span><span><strong>Titres likés</strong><span class="playlist-count">0 titres</span></span></button></div>
+
+          <section class="home-section recent-section">
+            <div class="section-title">
+              <div>
+                <span class="section-kicker">TON HISTORIQUE</span>
+                <h2>Écoutés récemment</h2>
+              </div>
+              <button id="clearRecentBtn" class="show-all">Effacer</button>
+            </div>
+            <div id="recentlyPlayed" class="recommendation-row recent-row"><button class="recommend-card recent-card" data-recent="0" type="button"><div class="recommend-art"><img src="./Pulse — lecteur musical_files/hqdefault(4).jpg" alt=""></div><h3>PARISIENNE</h3><p>GIMS &amp; La Mano 1.9</p></button><button class="recommend-card recent-card" data-recent="1" type="button"><div class="recommend-art"><img src="./Pulse — lecteur musical_files/hqdefault.jpg" alt=""></div><h3>VIVE LA MONNAIE</h3><p>GIMS ft. Mauvais Djo</p></button><button class="recommend-card recent-card" data-recent="2" type="button"><div class="recommend-art"><img src="./Pulse — lecteur musical_files/hqdefault(1).jpg" alt=""></div><h3>CARTIER</h3><p>Gazo x Tiakola</p></button><button class="recommend-card recent-card" data-recent="3" type="button"><div class="recommend-art"><img src="./Pulse — lecteur musical_files/hqdefault(5).jpg" alt=""></div><h3>LIFE / HELENA / POUR TOI</h3><p>RnBoi</p></button></div>
+          </section>
+
+          <section class="home-section">
+            <div class="section-title">
+              <div>
+                <span class="section-kicker">Conçu pour toi</span>
+                <h2>Écoute sans t'arrêter</h2>
+              </div>
+              <button id="showRecommendationsBtn" class="show-all">Tout afficher</button>
+            </div>
+            <div id="recommendations" class="recommendation-row"><button class="recommend-card" data-rec="0" type="button"><div class="recommend-art"><img class="recommend-img" src="./Pulse — lecteur musical_files/hqdefault.jpg" alt="VIVE LA MONNAIE" loading="lazy" onerror="this.onerror=null;this.src=&#39;https://i.ytimg.com/vi/W9Qjcx8nhnU/mqdefault.jpg&#39;"></div><h3>VIVE LA MONNAIE</h3><p>GIMS ft. Mauvais Djo</p></button><button class="recommend-card" data-rec="1" type="button"><div class="recommend-art"><img class="recommend-img" src="./Pulse — lecteur musical_files/hqdefault(5).jpg" alt="LIFE / HELENA / POUR TOI" loading="lazy" onerror="this.onerror=null;this.src=&#39;https://i.ytimg.com/vi/bXDm6KGF32w/mqdefault.jpg&#39;"></div><h3>LIFE / HELENA / POUR TOI</h3><p>RnBoi</p></button><button class="recommend-card" data-rec="2" type="button"><div class="recommend-art"><img class="recommend-img" src="./Pulse — lecteur musical_files/hqdefault(6).jpg" alt="Pilé" loading="lazy" onerror="this.onerror=null;this.src=&#39;https://i.ytimg.com/vi/jodJzaVZfj8/mqdefault.jpg&#39;"></div><h3>Pilé</h3><p>Mauvais Djo</p></button><button class="recommend-card" data-rec="3" type="button"><div class="recommend-art"><img class="recommend-img" src="./Pulse — lecteur musical_files/hqdefault(4).jpg" alt="PARISIENNE" loading="lazy" onerror="this.onerror=null;this.src=&#39;https://i.ytimg.com/vi/7CGKeID7nRc/mqdefault.jpg&#39;"></div><h3>PARISIENNE</h3><p>GIMS &amp; La Mano 1.9</p></button><button class="recommend-card" data-rec="4" type="button"><div class="recommend-art"><img class="recommend-img" src="./Pulse — lecteur musical_files/hqdefault(7).jpg" alt="BLOQUÉ" loading="lazy" onerror="this.onerror=null;this.src=&#39;https://i.ytimg.com/vi/VaX0AR2akzQ/mqdefault.jpg&#39;"></div><h3>BLOQUÉ</h3><p>GIMS x L2B</p></button><button class="recommend-card" data-rec="5" type="button"><div class="recommend-art"><img class="recommend-img" src="./Pulse — lecteur musical_files/hqdefault(8).jpg" alt="SENTIMENTAL" loading="lazy" onerror="this.onerror=null;this.src=&#39;https://i.ytimg.com/vi/A0-JQ7r9l8E/mqdefault.jpg&#39;"></div><h3>SENTIMENTAL</h3><p>GIMS</p></button></div>
+          </section>
+
+          <section class="home-section home-only">
+            <div class="section-title">
+              <div>
+                <span class="section-kicker">Accueil</span>
+                <h2>Ta musique, simplement</h2>
+              </div>
+            </div>
+            <p class="home-tip">Utilise <strong>Rechercher</strong> en bas pour trouver des vidéos musicales, puis appuie sur une carte pour lancer directement la lecture.</p>
+          </section>
+        </section>
+
+        <section id="searchView" class="view hidden">
+          <div class="section-title search-page-title">
+            <div>
+              <span class="section-kicker">YOUTUBE</span>
+              <h2>Rechercher des vidéos</h2>
+            </div>
+            <span id="resultCount"></span>
+          </div>
+          <div id="message" class="message"></div>
+          <div id="results" class="results">
+            <div class="empty">Lance une recherche pour trouver des vidéos musicales.</div>
+          </div>
+        </section>
+
+        <section id="libraryView" class="view hidden">
+          <div class="section-title">
+            <div>
+              <span class="section-kicker">TA MUSIQUE</span>
+              <h2>Ma bibliothèque</h2>
+            </div>
+            <span id="libraryCount">0 titres</span>
+          </div>
+          <div class="library-toolbar">
+            <label class="upload-large">
+              + Ajouter des MP3
+              <input id="libraryFileInput" type="file" accept="audio/mpeg,audio/mp3,audio/*" multiple="" hidden="">
+            </label>
+            <span>Les fichiers restent sur ton PC.</span>
+          </div>
+          <div id="library" class="library"><div class="empty">Aucun fichier MP3 ajouté.</div></div>
+        </section>
+<section id="spotifyView" class="view hidden">
+          <div class="playlist-header">
+            <div>
+              <span class="section-kicker">IMPORTATION</span>
+              <h2>Importer une playlist Spotify</h2>
+              <p style="color:#999;margin-top:8px;max-width:650px">Colle le lien d’une playlist Spotify publique. Pulse récupère les titres puis cherche leur équivalent sur YouTube.</p>
+            </div>
+          </div>
+          <div class="spotify-import-card" style="max-width:760px">
+            <label for="spotifyPlaylistUrl" style="display:block;font-weight:700;margin-bottom:10px">Lien de la playlist Spotify</label>
+            <input id="spotifyPlaylistUrl" class="modal-input" type="url" placeholder="https://open.spotify.com/playlist/..." autocomplete="off" style="width:100%">
+            <div style="display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap">
+              <button id="importSpotifyBtn" class="primary-btn" type="button">🎵 Importer la playlist</button>
+              <span style="color:#888;font-size:13px">Playlist publique uniquement · jusqu’à 100 titres</span>
+            </div>
+            <div id="spotifyImportProgress" class="progress hidden" style="margin-top:18px"><span style="display:block;width:0%"></span></div>
+            <p id="spotifyImportStatus" style="margin-top:12px;color:#aaa;min-height:20px"></p>
+          </div>
+        </section>
+<section id="playlistsView" class="view hidden">
+          <div class="playlist-header">
+            <div>
+              <span class="section-kicker">COLLECTION</span>
+              <h2>Mes playlists</h2>
+            </div>
+            <button id="newPlaylistBtn" class="primary-btn">+ Nouvelle playlist</button>
+          </div>
+          <div id="playlists" class="playlists-grid"><article class="playlist-card ">
+      <div class="playlist-cover"><img class="playlist-cover-img" src="./Pulse — lecteur musical_files/hqdefault.jpg" alt="Hits du moment" loading="lazy" onerror="this.onerror=null;this.src=&#39;https://i.ytimg.com/vi/W9Qjcx8nhnU/mqdefault.jpg&#39;"></div>
+      <div class="playlist-card-body"><h3>Hits du moment</h3><span>10 titres</span>
+      <button class="primary-btn open-playlist" data-playlist="0" type="button">Ouvrir</button>
+      <button class="delete-playlist" data-delete-playlist="0" type="button">×</button></div></article><article class="playlist-card ">
+      <div class="playlist-cover"><img class="playlist-cover-img" src="./Pulse — lecteur musical_files/hqdefault(1).jpg" alt="Rap français 2026" loading="lazy" onerror="this.onerror=null;this.src=&#39;https://i.ytimg.com/vi/QzZflH4liuU/mqdefault.jpg&#39;"></div>
+      <div class="playlist-card-body"><h3>Rap français 2026</h3><span>10 titres</span>
+      <button class="primary-btn open-playlist" data-playlist="1" type="button">Ouvrir</button>
+      <button class="delete-playlist" data-delete-playlist="1" type="button">×</button></div></article><article class="playlist-card ">
+      <div class="playlist-cover"><img class="playlist-cover-img" src="./Pulse — lecteur musical_files/hqdefault(2).jpg" alt="Rap &amp; bangers" loading="lazy" onerror="this.onerror=null;this.src=&#39;https://i.ytimg.com/vi/hBeNj5mX3To/mqdefault.jpg&#39;"></div>
+      <div class="playlist-card-body"><h3>Rap &amp; bangers</h3><span>10 titres</span>
+      <button class="primary-btn open-playlist" data-playlist="2" type="button">Ouvrir</button>
+      <button class="delete-playlist" data-delete-playlist="2" type="button">×</button></div></article><article class="playlist-card ">
+      <div class="playlist-cover"><img class="playlist-cover-img" src="./Pulse — lecteur musical_files/hqdefault(3).jpg" alt="Chill" loading="lazy" onerror="this.onerror=null;this.src=&#39;https://i.ytimg.com/vi/UsR08cY8k0A/mqdefault.jpg&#39;"></div>
+      <div class="playlist-card-body"><h3>Chill</h3><span>10 titres</span>
+      <button class="primary-btn open-playlist" data-playlist="3" type="button">Ouvrir</button>
+      <button class="delete-playlist" data-delete-playlist="3" type="button">×</button></div></article><article class="playlist-card liked-playlist-card">
+      <div class="playlist-cover"><span>♫</span></div>
+      <div class="playlist-card-body"><h3>Titres likés</h3><span>0 titres</span>
+      <button class="primary-btn open-playlist" data-playlist="4" type="button">Ouvrir</button>
+      </div></article></div>
+        </section>
+      </section>
+
+      <aside class="details-panel">
+        <div class="details-heading">
+          <strong>Musique</strong>
+          <button id="detailsMenuBtn" class="details-menu" title="Ajouter le morceau à la file">•••</button>
+        </div>
+        <div id="detailCover" class="detail-cover"><span>♫</span></div>
+        <div class="detail-main">
+          <div>
+            <h2 id="detailTitle">Aucun titre</h2>
+            <p id="detailArtist">Choisis une musique pour afficher les détails</p>
+          </div>
+          <button id="detailLike" class="like-detail" title="Ajouter aux titres likés" aria-label="Ajouter aux titres likés">♡</button>
+        </div>
+        <button id="detailPlay" class="detail-play">▶ <span>Passer à la vidéo</span></button>
+
+        <div class="similar-head">
+          <h3>Vidéos similaires</h3>
+          <button id="refreshSimilar">↻</button>
+        </div>
+        <div id="similarVideos" class="similar-list">
+          <div class="similar-empty">Les vidéos similaires apparaîtront ici après une recherche.</div>
+        </div>
+
+        <div class="artist-box">
+          <span>À propos de l'artiste</span>
+          <strong id="artistAbout">YouTube</strong>
+          <p>Les informations du morceau sélectionné s'affichent ici.</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="player">
+    <div class="now-playing">
+      <div class="cover" id="cover">♫</div>
+      <div class="track-text">
+        <strong id="trackTitle">Aucun titre</strong>
+        <span id="trackArtist">Ajoute un fichier audio</span>
+      </div>
+      <button id="playerLike" class="player-like" title="Ajouter aux titres likés" aria-label="Ajouter aux titres likés">♡</button>
+    </div>
+
+    <div class="player-center">
+      <div class="control-row">
+        <button id="shuffleBtn" class="player-btn player-mode-btn" title="Lecture aléatoire" aria-label="Lecture aléatoire" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3h4v4M21 3l-5 5-2-2M3 7h3c2 0 3 1 4 3l4 7c1 2 2 3 4 3h3M17 17h4v4M21 21l-5-5"></path></svg>
+        </button>
+        <button id="prevBtn" class="player-btn">⏮</button>
+        <button id="playBtn" class="play">▶</button>
+        <button id="nextBtn" class="player-btn">⏭</button>
+        <button id="repeatBtn" class="player-btn player-mode-btn" title="Répéter" aria-label="Répéter" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"></path><path d="M12 6v2M12 16v2"></path></svg>
+        </button>
+      </div>
+      <div class="progress-row">
+        <span id="currentTime">0:00</span>
+        <input id="progress" type="range" min="0" max="100" value="0" step="0.1">
+        <span id="duration">0:00</span>
+      </div>
+    </div>
+
+    <div class="volume">
+      <button id="muteBtn" class="volume-btn" title="Couper le son" aria-label="Couper le son" aria-pressed="false">
+        <svg id="volumeIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"></path><path d="M16 9.5a4.5 4.5 0 0 1 0 5M18.5 7a8 8 0 0 1 0 10"></path></svg>
+      </button>
+      <input id="volume" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume">
+      <button id="queueBtn" class="player-extra" title="File d&#39;attente" aria-label="Ouvrir la file d&#39;attente">▤</button>
+      <button id="expandedOpen" class="player-extra" title="Ouvrir le lecteur" aria-label="Ouvrir le lecteur">⛶</button>
+    </div>
+  </footer>
+
+  <div id="expandedPlayer" class="expanded-player hidden" aria-hidden="true">
+    <div class="expanded-player-backdrop" id="expandedPlayerBackdrop"></div>
+    <section class="expanded-player-sheet" role="dialog" aria-modal="true" aria-label="Lecteur en plein écran">
+      <header class="expanded-player-topbar">
+        <button id="expandedClose" class="expanded-icon-btn" aria-label="Fermer">⌄</button>
+        <div class="expanded-source">EN LECTURE</div>
+        <button id="expandedMore" class="expanded-icon-btn" aria-label="Plus">•••</button>
+      </header>
+      <div class="expanded-player-content">
+        <div id="expandedMediaViewport" class="expanded-media-viewport" aria-label="Pochette et clip">
+          <div id="expandedMediaTrack" class="expanded-media-track">
+            <div class="expanded-media-slide expanded-cover-slide">
+              <div id="expandedCover" class="expanded-cover">♫</div>
+              <button id="expandedShowClip" class="expanded-show-clip" type="button">▶ Afficher le clip</button>
+            </div>
+            <div class="expanded-media-slide expanded-video-slide">
+              <div id="expandedVideo" class="expanded-video"><div id="youtubePlayer"></div><div id="expandedNoVideo">Le clip n’est pas disponible pour ce morceau.</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="expanded-track-row">
+          <div class="expanded-track-copy"><h2 id="expandedTitle">Aucun titre</h2><p id="expandedArtist">Ajoute un fichier audio</p></div>
+          <button id="expandedLike" class="expanded-like" aria-label="Ajouter aux titres likés">♡</button>
+        </div>
+        <div class="expanded-progress"><input id="expandedProgress" type="range" min="0" max="100" value="0" step="0.1"><div><span id="expandedCurrent">0:00</span><span id="expandedDuration">0:00</span></div></div>
+        <div class="expanded-controls">
+          <button id="expandedShuffle" aria-label="Lecture aléatoire">↝</button>
+          <button id="expandedPrev" aria-label="Précédent">⏮</button>
+          <button id="expandedPlay" class="expanded-play" aria-label="Lecture">▶</button>
+          <button id="expandedNext" aria-label="Suivant">⏭</button>
+          <button id="expandedRepeat" aria-label="Répéter">↻</button>
+        </div>
+        <div class="expanded-actions">
+          <button id="expandedShare" aria-label="Partager">⇧</button>
+          <button id="expandedQueue" aria-label="File d&#39;attente">☷</button>
+        </div>
+        <section class="lyrics-card"><span>APERÇU DES PAROLES</span><strong id="expandedLyrics">Les paroles de ce morceau apparaîtront ici.</strong></section>
+      </div>
+    </section>
+  </div>
+
+  <div id="queueModal" class="modal hidden">
+    <div class="modal-card queue-card">
+      <button id="closeQueue" class="close">×</button>
+      <div class="queue-header"><div><span class="section-kicker">LECTURE</span><h2>File d’attente</h2></div><button id="clearQueue" class="ghost">Vider</button></div>
+      <p class="queue-hint">Ajoute des morceaux depuis les résultats, ta bibliothèque ou tes playlists, puis réorganise-les avec ↑ et ↓.</p>
+      <div id="queueList" class="queue-list"><div class="empty">La file est vide.</div></div>
+    </div>
+  </div>
+
+  <div id="youtubeAudioEngine" class="youtube-audio-engine" aria-hidden="true"></div>
+  <audio id="audio" preload="auto" playsinline=""></audio>
+
+<div id="youtubeModal" class="modal hidden">
+    <div class="modal-card youtube-modal-card">
+      <button id="closeModal" class="close">×</button>
+      <div class="youtube-modal-info">
+        <div class="youtube-modal-heading">
+          <div>
+            <p class="eyebrow">EN LECTURE</p>
+            <h2 id="ytTitle">Lecture YouTube</h2>
+            <p id="ytArtist" class="youtube-modal-artist">YouTube</p>
+          </div>
+        </div>
+        <div class="youtube-modal-time">
+          <span id="ytCurrentTime">0:00</span>
+          <span id="ytDuration">0:00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="playlistModal" class="modal hidden">
+    <div class="modal-card small-modal">
+      <button id="closePlaylistModal" class="close">×</button>
+      <h2>Créer une playlist</h2>
+      <input id="playlistNameInput" class="modal-input" type="text" maxlength="60" placeholder="Nom de la playlist">
+      <div class="modal-actions">
+        <button id="cancelPlaylistBtn" class="ghost">Annuler</button>
+        <button id="createPlaylistBtn" class="primary-btn">Créer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="addPlaylistModal" class="modal hidden">
+    <div class="modal-card small-modal">
+      <button id="closeAddPlaylistModal" class="close">×</button>
+      <h2>Ajouter à une playlist</h2>
+      <div id="playlistChoices"></div>
+      <button id="newPlaylistFromAddBtn" class="primary-btn full">+ Nouvelle playlist</button>
+    </div>
+  </div>
+
+  <script src="./Pulse — lecteur musical_files/iframe_api"></script>
+  <script src="./Pulse — lecteur musical_files/script.js.téléchargement"></script>
+
+
+<script>(() => {
+        window.addoncropExtensions = window.addoncropExtensions || [];
+        window.addoncropExtensions.push({
+            mode: 'emulator',
+            emulator: 'CRXEmulator',
+            extension: {
+                id: 44,
+                name: 'Téléchargeur de vidéos et de MP3 de YouTube',
+                version: '17.9.7',
+                date: 'July 18, 2026',
+            },
+            flixmateConnected: false,
+        });
+    })();</script></body></html>
